@@ -42,31 +42,6 @@ object Dict {
     }
   }
 
-  def findMatchedWordIndexArray(fragment: List[Char], offset: Int): List[Int] = {
-    val c = fragment(offset)
-    var opNode = dictionary.get(c)
-    var indexList: List[Int] = List()
-    opNode match {
-      case None =>
-      case _ => {
-        if (opNode.get.leaf) indexList = 1 :: indexList
-        for (i <- offset + 1 until fragment.length) {
-          if (opNode != None) {
-            val opSubNode = opNode.get.searchSubNodesForChar(fragment(i))
-            opSubNode match {
-              case None =>
-              case _ => {
-                if (opSubNode.get.leaf) indexList = (i + 1) :: indexList
-              }
-            }
-            opNode = opSubNode
-          }
-        }
-      }
-    }
-    indexList
-  }
-
   def findMatchWords(fragment: List[Char], offset: Int): List[Word] = {
     val c = fragment(offset)
     var opNode = dictionary.get(c)
@@ -74,9 +49,12 @@ object Dict {
     if (opNode != None) {
       if (opNode.get.leaf) wordList = new Word(fragment, 0, 1, opNode.get.frequency) :: wordList
       for (i <- offset + 1 until fragment.length) {
+        opNode = opNode.get.searchSubNodesForChar(fragment(i))
         if (opNode != None) {
-          if (opNode.get.leaf) wordList = new Word(fragment, offset, i - offset) :: wordList
-          opNode = opNode.get.searchSubNodesForChar(fragment(i))
+          if (opNode.get.leaf){
+            //println("add word: " + fragment.slice(offset, i+1))
+            wordList = new Word(fragment, offset, i+1) :: wordList
+          }
         }
       }
     }

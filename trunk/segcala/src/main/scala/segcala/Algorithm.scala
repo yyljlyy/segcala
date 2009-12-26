@@ -14,7 +14,7 @@ object Constants {
 object Algorithm {
   private def createChunks(fragment: List[Char], offset: Int): List[Chunk] = {
 
-    var q: Queue[Array[Int]] = new Queue[Array[Int]]()
+    var q: Queue[Word] = new Queue[Word]()
     findMatches(q, fragment, offset, 0)
 
     List()
@@ -37,17 +37,21 @@ object Algorithm {
     tmpChunks(0)
   }
 
-  private def findMatches(q: Queue[Array[Int]], fragment: List[Char], offset: Int, wordNo: Int) {
+  def findMatches(q: Queue[Word], fragment: List[Char], offset: Int, wordNo: Int) {
 
     if (wordNo < Constants.MAX_WORD_NO && offset < fragment.length) {
-      if (wordNo == 0) q.enqueue(Array(-1, -1))
-      val indexes = Dict.findMatchedWordIndexArray(fragment, offset)
-      indexes.foreach(i => {
-        q.enqueue(Array(offset, i))
-        findMatches(q, fragment, i, wordNo + 1)
+      val words = Dict.findMatchWords(fragment, offset)
+      words.foreach(w => {
+        q.enqueue(w)
+        findMatches(q, fragment, offset + w.length, wordNo + 1)
       })
+      if (wordNo == 1) {
+        q.enqueue(new Word(List('|')))
+      }
     }
+
   }
+
 
   object Rules {
     def largestAvgWordLenRule(chunks: List[Chunk]): List[Chunk] = {
@@ -70,5 +74,26 @@ object Algorithm {
       chunks.filter(chunk => (chunk.degreeOfMorphemicFreedom == c.degreeOfMorphemicFreedom))
     }
 
+  }
+}
+
+object AlgoTest{
+  def main(args: Array[String]){
+
+    Dict.addWord("abcd")
+    Dict.addWord("abc")
+    Dict.addWord("de")
+    Dict.addWord("defg")
+
+    var q: Queue[Word] = new Queue[Word]()
+
+    Algorithm.findMatches(q, List('a', 'b', 'c', 'd', 'e'), 0, 0)
+    println("-- words --")
+    var w = q.dequeue
+    while( !q.isEmpty ){
+      print(w.value)
+      print("::")
+      w = q.dequeue
+    }
   }
 }
