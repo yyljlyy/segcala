@@ -104,16 +104,3 @@ class TreeNode(val c: Char, val level: Int, var leaf: Boolean, var frequency: In
   }
 
 }
-
-object DictTest {
-  def main(args: Array[String]) {
-
-    Dict.addWord("abcd")
-    Dict.addWord("abc")
-    Dict.addWord("defg")
-
-    val v = Dict.findMatchWords("abcdef".toList, 0)
-    println(v)
-  }
-
-}
