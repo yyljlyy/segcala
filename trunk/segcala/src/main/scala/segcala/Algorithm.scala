@@ -12,13 +12,26 @@ object Constants {
 }
 
 object Algorithm {
-  private def createChunks(fragment: List[Char], offset: Int): List[Chunk] = {
+   def createChunks(fragment: List[Char], offset: Int): List[Chunk] = {
 
     var q: Queue[Word] = new Queue[Word]()
     findMatches(q, fragment, offset, 0)
 
-    List()
+    var chunkList: List[Chunk] = List()
+    var tmpWordList: List[Word] = List()
+    while( !q.isEmpty ){
+      var w = q.dequeue
+      if(w.value == "|"){
+        var chunk = new Chunk(tmpWordList)
+        chunkList = chunk::chunkList
+        tmpWordList = List()
+      }else{
+        tmpWordList = w::tmpWordList
+      }
+    }
+    chunkList
   }
+
 
   private def applyRules(chunks: List[Chunk]): Chunk = {
 
@@ -37,7 +50,7 @@ object Algorithm {
     tmpChunks(0)
   }
 
-  def findMatches(q: Queue[Word], fragment: List[Char], offset: Int, wordNo: Int) {
+  private def findMatches(q: Queue[Word], fragment: List[Char], offset: Int, wordNo: Int) {
 
     if (wordNo < Constants.MAX_WORD_NO && offset < fragment.length) {
       val words = Dict.findMatchWords(fragment, offset)
@@ -87,13 +100,8 @@ object AlgoTest{
 
     var q: Queue[Word] = new Queue[Word]()
 
-    Algorithm.findMatches(q, List('a', 'b', 'c', 'd', 'e'), 0, 0)
-    println("-- words --")
-    var w = q.dequeue
-    while( !q.isEmpty ){
-      print(w.value)
-      print("::")
-      w = q.dequeue
-    }
+    val chunks = Algorithm.createChunks(List('a', 'b', 'c', 'd', 'e'), 0)
+    println("-- chunks --")
+    chunks.foreach(c => println(c))
   }
 }
