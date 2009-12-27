@@ -17,32 +17,39 @@ class Dict @Inject()(@Named("wordFiles") val wordFiles: String,
                      @Named("unitFiles") val unitFiles: String) {
   val loader = new DefaultResourceLoader()
 
-  Dict.loadDic(loader.getResource(wordFiles).getFile, CharDict())
   Dict.loadDic(loader.getResource(charFiles).getFile, WordDict())
+  Dict.loadDic(loader.getResource(wordFiles).getFile, CharDict())
   Dict.loadDic(loader.getResource(unitFiles).getFile, UnitDict())
 }
 
 sealed trait DictType
-final case class CharDict extends DictType
-final case class WordDict extends DictType
-final case class UnitDict extends DictType
+final case class CharDict() extends DictType
+final case class WordDict() extends DictType
+final case class UnitDict() extends DictType
 
 object Dict {
   import scala.collection.mutable.Map
   val dictionary = Map[Char, TreeNode]()
 
   def loadDic(file: File, dictType: DictType) {
-    for (line <- Source.fromFile(file)) {
-      if (line.indexOf("#") == -1) {
+    for (line <- Source.fromFile(file).getLines ) {
+      if (!line.contains("#")) {
         dictType match {
-          case WordDict => {
+          case WordDict() => {
             addWord(line, 0)
           }
-          case CharDict => {
+          case CharDict() => {
             val lArr = line.split(" ")
-            addWord(lArr(0), lArr(1).toInt)
+            lArr.length match {
+              case 2 => {
+                 addWord(lArr(0), lArr(1).toInt)
+              }
+              case 1 => {
+                 addWord(lArr(0), 0)
+              }
+            }
           }
-          case UnitDict => {
+          case UnitDict() => {
 
           }
         }
@@ -50,11 +57,15 @@ object Dict {
     }
   }
 
+  def addWord(word: String){
+    addWord(word, 0)
+  }
+
   def addWord(word: String, freq: Int) {
     val l = word.toList
     var opNode = search(l)
     if (opNode == None) {
-      val tn = if (l.length == 1) new TreeNode(l.head, 0, true) else new TreeNode(l.head, 0, false, freq)
+      val tn = if (l.length == 1) new TreeNode(l.head, 0, true, freq) else new TreeNode(l.head, 0, false, freq)
       dictionary(l.head) = tn
       opNode = Some(tn)
     }
@@ -64,7 +75,7 @@ object Dict {
       node.leaf = true
     } else {
       for (i <- node.level + 1 until l.length) {
-        val tn = if (i == l.length - 1) new TreeNode(l(i), i, true) else new TreeNode(l(i), i, false, freq)
+        val tn = if (i == l.length - 1) new TreeNode(l(i), i, true, freq) else new TreeNode(l(i), i, false, freq)
         node.addSubNode(tn)
         node = tn
       }
@@ -78,9 +89,9 @@ object Dict {
     if (opNode != None) {
       if (opNode.get.leaf) wordList = new Word(fragment, 0, 1, opNode.get.frequency) :: wordList
       for (i <- offset + 1 until fragment.length) {
-        opNode = opNode.get.searchSubNodesForChar(fragment(i))
         if (opNode != None) {
-          if (opNode.get.leaf) {
+          opNode = opNode.get.searchSubNodesForChar(fragment(i))
+          if (opNode != None && opNode.get.leaf) {
             //println("add word: " + fragment.slice(offset, i+1))
             wordList = new Word(fragment, offset, i + 1 - offset) :: wordList
           }

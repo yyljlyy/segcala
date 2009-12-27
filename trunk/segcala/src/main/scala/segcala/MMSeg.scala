@@ -38,14 +38,16 @@ class SegModule extends AbstractModule {
 object SegTest {
   def main(args: Array[String]) {
 
-    val inj:Injector = Guice.createInjector(new SegModule())
-    inj.getInstance(classOf[Dict])
+    //val inj:Injector = Guice.createInjector(new SegModule())
+    //inj.getInstance(classOf[Dict])
 
-    Dict.addWord("abcd")
-    Dict.addWord("abc")
-    Dict.addWord("de")
-    Dict.addWord("defg")
-    val words = MMSeg.seg(new TextFragment(List('a', 'b', 'c', 'd', 'e'), 0))
+    Dict.addWord("研究")
+    Dict.addWord("生命")
+    Dict.addWord("科学")
+    Dict.addWord("研究生")
+    Dict.addWord("命", 1234)
+
+    val words = MMSeg.seg(new TextFragment("研究生命科学"))
     words.foreach(w => println(w.value))
   }
 }

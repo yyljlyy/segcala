@@ -15,9 +15,13 @@ object Algorithm {
 
   def seg(fragment: TextFragment): Chunk = {
     val chunks = createChunks(fragment.data, fragment.offset)
-    val chunk = applyRules(chunks)
-    fragment.offset += chunk.length
-    chunk
+    if(chunks.length > 0){
+       val chunk = applyRules(chunks)
+       fragment.offset += chunk.length
+       chunk
+    }else{
+       throw new Exception("no chunk found.")
+    }
   }
 
   private def createChunks(fragment: List[Char], offset: Int): List[Chunk] = {
