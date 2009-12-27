@@ -5,6 +5,7 @@ import com.google.inject.Inject
 import org.springframework.core.io.DefaultResourceLoader
 import java.io.File
 import io.Source
+import segcala.Dict.{WordDict, CharDict, UnitDict}
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,17 +23,19 @@ class Dict @Inject()(@Named("wordFiles") val wordFiles: String,
   Dict.loadDic(loader.getResource(unitFiles).getFile, UnitDict())
 }
 
-sealed trait DictType
-final case class CharDict() extends DictType
-final case class WordDict() extends DictType
-final case class UnitDict() extends DictType
+
 
 object Dict {
   import scala.collection.mutable.Map
   val dictionary = Map[Char, TreeNode]()
 
-  def loadDic(file: File, dictType: DictType) {
-    for (line <- Source.fromFile(file).getLines ) {
+  sealed trait DictType
+  final case class CharDict() extends DictType
+  final case class WordDict() extends DictType
+  final case class UnitDict() extends DictType
+
+  private def loadDic(file: File, dictType: DictType) {
+    for (line <- Source.fromFile(file).getLines) {
       if (!line.contains("#")) {
         dictType match {
           case WordDict() => {
@@ -42,10 +45,10 @@ object Dict {
             val lArr = line.split(" ")
             lArr.length match {
               case 2 => {
-                 addWord(lArr(0), lArr(1).toInt)
+                addWord(lArr(0), lArr(1).toInt)
               }
               case 1 => {
-                 addWord(lArr(0), 0)
+                addWord(lArr(0), 0)
               }
             }
           }
@@ -57,7 +60,7 @@ object Dict {
     }
   }
 
-  def addWord(word: String){
+  def addWord(word: String) {
     addWord(word, 0)
   }
 

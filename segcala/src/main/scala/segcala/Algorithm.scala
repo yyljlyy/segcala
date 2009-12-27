@@ -4,23 +4,22 @@ import collection.mutable.Queue
 
 /**
  * Created by IntelliJ IDEA.
- * User: rockmaple
+ * User: rockmaple(At)gmail.com
  */
 
-object Constants {
-  val MAX_WORD_NO = 3
-}
-
 object Algorithm {
+  object Constants {
+    val MAX_WORD_NO = 3
+  }
 
   def seg(fragment: TextFragment): Chunk = {
     val chunks = createChunks(fragment.data, fragment.offset)
-    if(chunks.length > 0){
-       val chunk = applyRules(chunks)
-       fragment.offset += chunk.length
-       chunk
-    }else{
-       throw new Exception("no chunk found.")
+    if (chunks.length > 0) {
+      val chunk = applyRules(chunks)
+      fragment.offset += chunk.length
+      chunk
+    } else {
+      throw new Exception("no chunk found.")
     }
   }
 
