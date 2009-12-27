@@ -12,21 +12,29 @@ object Constants {
 }
 
 object Algorithm {
-   def createChunks(fragment: List[Char], offset: Int): List[Chunk] = {
+
+  def seg(fragment: TextFragment): Chunk = {
+    val chunks = createChunks(fragment.data, fragment.offset)
+    val chunk = applyRules(chunks)
+    fragment.offset += chunk.length
+    chunk
+  }
+
+  private def createChunks(fragment: List[Char], offset: Int): List[Chunk] = {
 
     var q: Queue[Word] = new Queue[Word]()
     findMatches(q, fragment, offset, 0)
 
     var chunkList: List[Chunk] = List()
     var tmpWordList: List[Word] = List()
-    while( !q.isEmpty ){
+    while (!q.isEmpty) {
       var w = q.dequeue
-      if(w.value == "|"){
+      if (w.value == "|") {
         var chunk = new Chunk(tmpWordList)
-        chunkList = chunk::chunkList
+        chunkList = chunk :: chunkList
         tmpWordList = List()
-      }else{
-        tmpWordList = w::tmpWordList
+      } else {
+        tmpWordList = w :: tmpWordList
       }
     }
     chunkList
@@ -87,21 +95,5 @@ object Algorithm {
       chunks.filter(chunk => (chunk.degreeOfMorphemicFreedom == c.degreeOfMorphemicFreedom))
     }
 
-  }
-}
-
-object AlgoTest{
-  def main(args: Array[String]){
-
-    Dict.addWord("abcd")
-    Dict.addWord("abc")
-    Dict.addWord("de")
-    Dict.addWord("defg")
-
-    var q: Queue[Word] = new Queue[Word]()
-
-    val chunks = Algorithm.createChunks(List('a', 'b', 'c', 'd', 'e'), 0)
-    println("-- chunks --")
-    chunks.foreach(c => println(c))
   }
 }

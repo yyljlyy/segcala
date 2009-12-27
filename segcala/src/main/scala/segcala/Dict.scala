@@ -53,7 +53,7 @@ object Dict {
         if (opNode != None) {
           if (opNode.get.leaf){
             //println("add word: " + fragment.slice(offset, i+1))
-            wordList = new Word(fragment, offset, i+1) :: wordList
+            wordList = new Word(fragment, offset, i+1-offset) :: wordList
           }
         }
       }
