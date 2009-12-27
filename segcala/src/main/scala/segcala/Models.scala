@@ -18,14 +18,14 @@ class Chunk(val words: List[Word], var lengthVal: Int, var averageLengthVal: Dou
 
   def averageLength: Double = {
     if (averageLengthVal < 0) {
-      averageLengthVal = length.asInstanceOf[Double] / words.length.asInstanceOf[Double]
+      averageLengthVal = length.toDouble / words.length.toDouble
     }
     averageLengthVal
   }
 
   def variance: Double = {
     if (varianceVal < 0) {
-      varianceVal = Math.sqrt(words.map(w => Math.pow(w.length.asInstanceOf[Double] - averageLength, 2)).reduceLeft(_ + _))
+      varianceVal = Math.sqrt(words.map(w => Math.pow(w.length.toDouble - averageLength, 2)).reduceLeft(_ + _))
     }
     varianceVal
   }
@@ -34,7 +34,7 @@ class Chunk(val words: List[Word], var lengthVal: Int, var averageLengthVal: Dou
   def degreeOfMorphemicFreedom: Double = {
     if (degreeOfMorphemicFreedomVal < 0) {
       try {
-        degreeOfMorphemicFreedomVal = words.filter(w => w.length == 1).map(w => Math.log(w.frequency.asInstanceOf[Double])).reduceLeft(_ + _)
+        degreeOfMorphemicFreedomVal = words.filter(w => w.length == 1).map(w => Math.log(w.frequency.toDouble)).reduceLeft(_ + _)
       } catch {
         case e => degreeOfMorphemicFreedomVal = 0
       }
