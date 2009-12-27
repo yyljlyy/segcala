@@ -2,30 +2,59 @@ package segcala
 
 import com.google.inject.name.Named
 import com.google.inject.Inject
+import org.springframework.core.io.DefaultResourceLoader
+import java.io.File
+import io.Source
 
 /**
  * Created by IntelliJ IDEA.
  * User: rockmaple
  */
 
-@Inject
-class Dict(@Named("wordFiles") val dictFiles: String) {
-  Dict.loadDic(dictFiles)
+
+class Dict @Inject()(@Named("wordFiles") val wordFiles: String,
+                     @Named("charFiles") val charFiles: String,
+                     @Named("unitFiles") val unitFiles: String) {
+  val loader = new DefaultResourceLoader()
+
+  Dict.loadDic(loader.getResource(wordFiles).getFile, CharDict())
+  Dict.loadDic(loader.getResource(charFiles).getFile, WordDict())
+  Dict.loadDic(loader.getResource(unitFiles).getFile, UnitDict())
 }
+
+sealed trait DictType
+final case class CharDict extends DictType
+final case class WordDict extends DictType
+final case class UnitDict extends DictType
 
 object Dict {
   import scala.collection.mutable.Map
   val dictionary = Map[Char, TreeNode]()
 
-  def loadDic(path: String) {
+  def loadDic(file: File, dictType: DictType) {
+    for (line <- Source.fromFile(file)) {
+      if (line.indexOf("#") == -1) {
+        dictType match {
+          case WordDict => {
+            addWord(line, 0)
+          }
+          case CharDict => {
+            val lArr = line.split(" ")
+            addWord(lArr(0), lArr(1).toInt)
+          }
+          case UnitDict => {
 
+          }
+        }
+      }
+    }
   }
 
-  def addWord(word: String) {
+  def addWord(word: String, freq: Int) {
     val l = word.toList
     var opNode = search(l)
     if (opNode == None) {
-      val tn = if (l.length == 1) new TreeNode(l.head, 0, true) else new TreeNode(l.head, 0, false)
+      val tn = if (l.length == 1) new TreeNode(l.head, 0, true) else new TreeNode(l.head, 0, false, freq)
       dictionary(l.head) = tn
       opNode = Some(tn)
     }
@@ -35,7 +64,7 @@ object Dict {
       node.leaf = true
     } else {
       for (i <- node.level + 1 until l.length) {
-        val tn = if (i == l.length - 1) new TreeNode(l(i), i, true) else new TreeNode(l(i), i, false)
+        val tn = if (i == l.length - 1) new TreeNode(l(i), i, true) else new TreeNode(l(i), i, false, freq)
         node.addSubNode(tn)
         node = tn
       }
@@ -51,9 +80,9 @@ object Dict {
       for (i <- offset + 1 until fragment.length) {
         opNode = opNode.get.searchSubNodesForChar(fragment(i))
         if (opNode != None) {
-          if (opNode.get.leaf){
+          if (opNode.get.leaf) {
             //println("add word: " + fragment.slice(offset, i+1))
-            wordList = new Word(fragment, offset, i+1-offset) :: wordList
+            wordList = new Word(fragment, offset, i + 1 - offset) :: wordList
           }
         }
       }

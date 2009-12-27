@@ -1,6 +1,8 @@
 package segcala
 
-import com.google.inject.AbstractModule
+import java.util.Properties
+import com.google.inject.name.Names
+import com.google.inject.{Module, Injector, Guice, AbstractModule}
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,13 +24,22 @@ object MMSeg{
 
 class SegModule extends AbstractModule {
   override def configure() {
-            
+
+    val properties = new Properties()
+    val loader = classOf[SegModule].getClassLoader
+    properties.load(loader.getResource("wordseg.properties").openStream)
+    Names.bindProperties(binder(), properties);
+    
   }
+
 }
 
 
 object SegTest {
   def main(args: Array[String]) {
+
+    val inj:Injector = Guice.createInjector(new SegModule())
+    inj.getInstance(classOf[Dict])
 
     Dict.addWord("abcd")
     Dict.addWord("abc")
