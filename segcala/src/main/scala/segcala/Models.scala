@@ -55,6 +55,5 @@ class Chunk(val words: List[Word], var lengthVal: Int, var averageLengthVal: Dou
 
 class TextFragment(val data: List[Char], var offset: Int) {
   def this(data: String) = this (data.toList, 0)
-
   def isFinish: Boolean = offset >= data.length
 }
