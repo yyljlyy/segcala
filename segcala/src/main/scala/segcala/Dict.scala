@@ -24,7 +24,6 @@ class Dict @Inject()(@Named("wordFiles") val wordFiles: String,
 }
 
 
-
 object Dict {
   import scala.collection.mutable.Map
   val dictionary = Map[Char, TreeNode]()
@@ -90,7 +89,7 @@ object Dict {
     var opNode = dictionary.get(c)
     var wordList: List[Word] = List()
     if (opNode != None) {
-      if (opNode.get.leaf) wordList = new Word(fragment, 0, 1, opNode.get.frequency) :: wordList
+      if (opNode.get.leaf) wordList = new Word(fragment, offset, offset + 1, opNode.get.frequency) :: wordList
       for (i <- offset + 1 until fragment.length) {
         if (opNode != None) {
           opNode = opNode.get.searchSubNodesForChar(fragment(i))
@@ -101,11 +100,16 @@ object Dict {
         }
       }
     }
+
+    if(wordList.length == 0){
+      wordList = new Word(fragment, offset, offset+1) :: wordList
+    }
+
     wordList
   }
 
   //查找某词语在树中的位置，返回已存在的公共前缀的最后一个节点。返回None表示首字在词典中也不存在
-  def search(l: List[Char]): Option[TreeNode] = {
+  private def search(l: List[Char]): Option[TreeNode] = {
 
     def searchTree(n: TreeNode, l: List[Char]): Option[TreeNode] = {
       l.length match {
