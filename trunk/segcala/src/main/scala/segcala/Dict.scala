@@ -89,7 +89,7 @@ object Dict {
     var opNode = dictionary.get(c)
     var wordList: List[Word] = List()
     if (opNode != None) {
-      if (opNode.get.leaf) wordList = new Word(fragment, offset, offset + 1, opNode.get.frequency) :: wordList
+      if (opNode.get.leaf) wordList = new Word(fragment, offset, 1, opNode.get.frequency) :: wordList
       for (i <- offset + 1 until fragment.length) {
         if (opNode != None) {
           opNode = opNode.get.searchSubNodesForChar(fragment(i))
@@ -102,7 +102,7 @@ object Dict {
     }
 
     if(wordList.length == 0){
-      wordList = new Word(fragment, offset, offset+1) :: wordList
+      wordList = new Word(fragment, offset, 1) :: wordList
     }
 
     wordList
