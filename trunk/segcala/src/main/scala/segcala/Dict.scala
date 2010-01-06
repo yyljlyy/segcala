@@ -18,8 +18,8 @@ class Dict @Inject()(@Named("wordFiles") val wordFiles: String,
                      @Named("unitFiles") val unitFiles: String) {
   val loader = new DefaultResourceLoader()
 
-  Dict.loadDic(loader.getResource(charFiles).getFile, WordDict())
-  Dict.loadDic(loader.getResource(wordFiles).getFile, CharDict())
+  Dict.loadDic(loader.getResource(charFiles).getFile, CharDict())
+  Dict.loadDic(loader.getResource(wordFiles).getFile, WordDict())
   Dict.loadDic(loader.getResource(unitFiles).getFile, UnitDict())
 }
 
@@ -38,10 +38,10 @@ object Dict {
       if (!line.contains("#")) {
         dictType match {
           case WordDict() => {
-            addWord(line, 0)
+            addWord(line.trim, 0)
           }
           case CharDict() => {
-            val lArr = line.split(" ")
+            val lArr = line.trim.split(" ")
             lArr.length match {
               case 2 => {
                 addWord(lArr(0), lArr(1).toInt)
