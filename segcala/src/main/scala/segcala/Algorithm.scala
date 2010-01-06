@@ -1,6 +1,6 @@
 package segcala
 
-import collection.mutable.Queue
+import collection.mutable.{ListBuffer, Queue}
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,23 +24,11 @@ object Algorithm {
   }
 
   private def createChunks(fragment: List[Char], offset: Int): List[Chunk] = {
+    var chunks: ListBuffer[Chunk] = new ListBuffer()
+    var words: Array[Word] = new Array(3)
 
-    var q: Queue[Word] = new Queue[Word]()
-    findMatches(q, fragment, offset, 0)
-
-    var chunkList: List[Chunk] = List()
-    var tmpWordList: List[Word] = List()
-    while (!q.isEmpty) {
-      var w = q.dequeue
-      if (w.value == "|") {
-        var chunk = new Chunk(tmpWordList)
-        chunkList = chunk :: chunkList
-        tmpWordList = List()
-      } else {
-        tmpWordList = w :: tmpWordList
-      }
-    }
-    chunkList
+    findMatches(fragment, offset, chunks, words, 0)
+    chunks.toList
   }
 
 
@@ -61,21 +49,24 @@ object Algorithm {
     tmpChunks(0)
   }
 
-  private def findMatches(q: Queue[Word], fragment: List[Char], offset: Int, wordNo: Int) {
+  private def findMatches(fragment: List[Char], offset: Int, chunks: ListBuffer[Chunk], path: Array[Word], len: Int) {
 
-    if (wordNo < Constants.MAX_WORD_NO && offset < fragment.length) {
+    if(len >= Constants.MAX_WORD_NO || offset >= fragment.length){
+      var l: List[Word] = List()
+      for(i <- 0 to len - 1){
+          l = path(i) :: l
+      }
+      val chunk = new Chunk(l)
+      chunks.append(chunk)
+    }else{
       val words = Dict.findMatchWords(fragment, offset)
       words.foreach(w => {
-        q.enqueue(w)
-        findMatches(q, fragment, offset + w.length, wordNo + 1)
+        path(len) = w
+        findMatches(fragment, offset + w.length, chunks, path, len+1)
       })
-      if (wordNo == 1) {
-        q.enqueue(new Word(List('|')))
-      }
     }
-
+    
   }
-
 
   object Rules {
     def largestAvgWordLenRule(chunks: List[Chunk]): List[Chunk] = {
